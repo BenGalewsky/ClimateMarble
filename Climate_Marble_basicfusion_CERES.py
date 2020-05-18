@@ -14,13 +14,14 @@ Comparing to the previous code that works on the SSF dataset, this version is si
 import numpy as np
 import os
 import sys
-import h5py
+import h5pyd as h5py
+import s3fs
 import xarray as xr
 from Climate_Marble_common_functions import latslons_to_idxs, get_descending
 
 
 
-def main_bf_CERES(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, MODE='ct'):
+def main_bf_CERES(h5f, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, MODE='ct'):
     """
     (This script is adapted for running on AWS cloud)
     
@@ -43,7 +44,7 @@ def main_bf_CERES(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, MO
     #    initialize output arrays and output hdf5 file
     #    check the number of CERES granules 
     # =============================================================================
-    output_nc_name = bf_file.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
+    output_nc_name = h5f.fid.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
     output_nc_name = output_nc_name.replace('.h5', '.nc')
 
     # 
@@ -63,22 +64,17 @@ def main_bf_CERES(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, MO
     #    Loop through each CERES granule and sort radiances into the corresponding lat/lon bins
     #    When encounters an asceding granule, script will move to the next granule
     # =============================================================================
-    try:
-        h5f = h5py.File(bf_file, 'r')
-    except IOError:
-        print(">> IOError, cannot access BF file {}, ignore this orbit.".format(bf_file))
-        return
 
     # USE MODIS granules to match first and last time of the descending node
     t0, t1 = get_descending(h5f, 'CERES')
     if t0 == 0:
-        print(">> IOError, no available MODIS granule in orbit {}".format(bf_file))
+        print(">> IOError, no available MODIS granule in orbit {}".format(h5f.fid))
         return
 
     # GET CERES granules
     CERES_granules = [item[0] for item in h5f['CERES'].items()]
     if len(CERES_granules) == 0:
-        print(">> IOError, no available CERES granule in orbit {}".format(bf_file))
+        print(">> IOError, no available CERES granule in orbit {}".format(h5f.fid))
         return
 
     # LOOP through each CERES granule

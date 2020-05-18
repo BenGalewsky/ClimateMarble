@@ -9,7 +9,7 @@ Updates:
 Oct 10 2019 - add function <fetch_bf_files_s3(iyr, imon)>
 """
 
-import h5py
+import h5pyd as h5py
 import numpy as np
 import os
 import datetime
