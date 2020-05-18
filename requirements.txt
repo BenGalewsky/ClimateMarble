@@ -1,0 +1,7 @@
+boto3
+numpy
+xarray==0.15.1
+julian==0.14
+scikit-image==0.16.2
+s3fs==0.4.2
+h5pyd==0.7.1

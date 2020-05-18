@@ -11,7 +11,8 @@ This script is new.
 import numpy as np
 import os
 import sys
-import h5py
+import h5pyd as h5py
+import s3fs
 import xarray as xr
 from Climate_Marble_common_functions import get_descending
 from skimage.transform import resize
@@ -22,7 +23,7 @@ from scipy.stats import binned_statistic_dd
 #     bf_file = sys.argv[1]
 #     SPATIAL_RESOLUTION=0.5; VZA_MAX=18; CAMERA='AN'; output_folder=''
 
-def main_bf_MISR(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, CAMERA='AN'):
+def main_bf_MISR(h5f, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, CAMERA='AN'):
     """
     (This script is adapted for running on AWS cloud)
     
@@ -45,7 +46,7 @@ def main_bf_MISR(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, CAM
     #    initialize output arrays and output hdf5 file
     #    check the number of CERES granules 
     # =============================================================================
-    output_nc_name = bf_file.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
+    output_nc_name = h5f.fid.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
     output_nc_name = output_nc_name.replace('.h5', '.nc')
 
     # 
@@ -67,11 +68,6 @@ def main_bf_MISR(bf_file, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, CAM
     #    Loop through each CERES granule and sort radiances into the corresponding lat/lon bins
     #    When encounters an asceding granule, script will move to the next granule
     # =============================================================================
-    try:
-        h5f = h5py.File(bf_file, 'r')
-    except IOError:
-        print(">> IOError( cannot access BF file {}, ignore this orbit )".format(bf_file))
-        return
 
     # USE MODIS granules to match first and last time of the descending node
     MISR_blocks = get_descending(h5f, 'MISR.{}'.format(CAMERA))
