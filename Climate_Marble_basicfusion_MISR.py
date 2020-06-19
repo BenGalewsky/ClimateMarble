@@ -46,7 +46,17 @@ def main_bf_MISR(h5f, output_folder, SPATIAL_RESOLUTION=0.5, VZA_MAX=18, CAMERA=
     #    initialize output arrays and output hdf5 file
     #    check the number of CERES granules 
     # =============================================================================
-    output_nc_name = h5f.fid.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
+
+    print("-------MISR----->", h5f)
+    print("-------FID------<>", h5f.fid)
+    print("---->", type(h5f))
+    if type(h5f.fid) is str:
+        output_nc_name = h5f.fid.split('/')[-1].replace('TERRA_BF_L1B', 'CLIMARBLE')
+    else:
+        output_nc_name = h5f.fid.name. \
+            decode("utf-8").split('/')[-1]. \
+            replace('TERRA_BF_L1B', 'CLIMARBLE')
+
     output_nc_name = output_nc_name.replace('.h5', '.nc')
 
     # 
